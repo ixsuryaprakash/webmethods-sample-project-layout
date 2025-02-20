@@ -22,7 +22,7 @@ pipeline {
     agent any 
      environment {
         SAG_HOME = 'C:\\SoftwareAG\\'
-        SAG_CI_HOME = 'C:\\folder7\\'
+        SAG_CI_HOME = 'C:\\SoftwareAG\\IntegrationServer\\'
     }
     stages {
         stage('Build'){

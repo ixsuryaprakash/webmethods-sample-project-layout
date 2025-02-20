@@ -21,7 +21,7 @@
 pipeline {
     agent any 
      environment {
-        SAG_HOME = 'C:\\SoftwareAG'
+        SAG_HOME = 'C:\\SoftwareAG\\'
         SAG_CI_HOME = 'c:\\Users\\SuryaPrakashKummari\\folder17\\'
     }
     stages {

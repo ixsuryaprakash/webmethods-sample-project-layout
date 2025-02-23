@@ -20,6 +20,9 @@
 
 pipeline {
     agent any 
+    parameters {
+        string(name: 'PACKAGE_NAME', defaultValue: 'Fibonachi', description: 'Enter the package name to deploy')
+    }
     stages {
         stage('Build') {
             steps {

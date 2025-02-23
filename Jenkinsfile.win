@@ -20,6 +20,11 @@
 
 pipeline {
     agent any 
+    environment {
+        SAG_HOME = 'C:/SoftwareAG7'
+        SAG_CI_HOME = 'C:/SAG_CI_DEV'   
+    }
+
     parameters {
         string(name: 'PACKAGE_NAME', defaultValue: 'Fibonachi', description: 'Enter the package name to deploy')  
     }

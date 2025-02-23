@@ -22,22 +22,30 @@ pipeline {
     agent any 
 
     parameters {
-        string(name: 'SELECTED_PACKAGE', defaultValue: 'Fibonachi', description: 'Enter the package name to deploy (e.g., Fibonachi1)')
+        string(name: 'PACKAGE_NAME', defaultValue: 'SamplePackage', description: 'Enter the package name to deploy')
     }
     stages {
-        stage('Build') {
+        stage('Checkout Code') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.SELECTED_PACKAGE} build"
+                git 'https://github.com/ixsuryaprakash/webmethods-sample-project-layout.git'
             }
         }
-        stage('Deploy') {
+
+        stage('Build Package') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.SELECTED_PACKAGE} deploy"
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -f assets/IS/Packages/${params.PACKAGE_NAME}/build.xml build"
             }
         }
-        stage('Test') {
+
+        stage('Deploy Package') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.SELECTED_PACKAGE} test"
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -f assets/IS/Packages/${params.PACKAGE_NAME}/deploy.xml deploy"
+            }
+        }
+
+        stage('Test Deployment') {
+            steps {
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -f assets/IS/Packages/${params.PACKAGE_NAME}/test.xml test"
                 junit 'report/'
             }
         }

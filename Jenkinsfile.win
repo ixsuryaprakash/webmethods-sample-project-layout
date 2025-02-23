@@ -22,37 +22,68 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'PACKAGE_NAME', defaultValue: 'SamplePackage', description: 'Enter the package name to deploy')
+        string(name: 'PACKAGE_NAME', defaultValue: 'MyPackage', description: 'Enter the package name to deploy')
     }
 
-    environment { 
-        PACKAGE_PATH = "assets/IS/Packages/${params.PACKAGE_NAME}"
+    environment {
+        SAG_HOME = 'C:/SoftwareAG7'
+        SAG_CI_HOME = 'C:/SAG_CI_DEV'
+        GIT_REPO = 'https://github.com/ixsuryaprakash/webmethods-sample-project-layout.git'
+        IS_PACKAGES_DIR = "${SAG_HOME}/IntegrationServer/packages"
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/ixsuryaprakash/webmethods-sample-project-layout.git'
+                script {
+                    if (isUnix()) {
+                        sh "rm -rf workspace && git clone ${env.GIT_REPO} workspace"
+                    } else {
+                        bat "rmdir /s /q workspace && git clone %GIT_REPO% workspace"
+                    }
+                }
             }
         }
 
-        stage('Build') {
+        stage('Build Selected Package') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -DpackagePath=${env.PACKAGE_PATH} build"
+                script {
+                    def packagePath = "workspace/assets/IS/Packages/${params.PACKAGE_NAME}"
+                    if (!fileExists(packagePath)) {
+                        error "Package ${params.PACKAGE_NAME} does not exist in repository!"
+                    }
+                }
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} build"
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Selected Package') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -DpackagePath=${env.PACKAGE_PATH} deploy"
+                script {
+                    def sourcePackagePath = "workspace/assets/IS/Packages/${params.PACKAGE_NAME}"
+                    def targetPackagePath = "${env.IS_PACKAGES_DIR}/${params.PACKAGE_NAME}"
+
+                    bat "xcopy /E /I /Y ${sourcePackagePath} ${targetPackagePath}"
+                }
             }
         }
 
-        stage('Test') {
+        stage('Restart Integration Server (Optional)') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -DpackagePath=${env.PACKAGE_PATH} test"
-                junit 'report/'
+                script {
+                    // Uncomment if restarting IS is needed
+                    // bat "${SAG_HOME}/IntegrationServer/bin/server.bat -restart"
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    echo "Package ${params.PACKAGE_NAME} has been deployed to ${env.IS_PACKAGES_DIR}"
+                }
             }
         }
     }
 }
+

@@ -19,37 +19,34 @@
 */
 
 pipeline {
-    agent any 
+    agent any
 
     parameters {
         string(name: 'PACKAGE_NAME', defaultValue: 'SamplePackage', description: 'Enter the package name to deploy')
     }
+
+    environment {
+        PACKAGE_PATH = "assets/IS/Packages/${params.PACKAGE_NAME}"
+    }
+
     stages {
-        stage('Checkout Code') {
+        stage('Build') {
             steps {
-                git 'https://github.com/ixsuryaprakash/webmethods-sample-project-layout.git'
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -DpackagePath=${env.PACKAGE_PATH} build"
             }
         }
 
-        stage('Build Package') {
+        stage('Deploy') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -f assets/IS/Packages/${params.PACKAGE_NAME}/build.xml build"
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -DpackagePath=${env.PACKAGE_PATH} deploy"
             }
         }
 
-        stage('Deploy Package') {
+        stage('Test') {
             steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -f assets/IS/Packages/${params.PACKAGE_NAME}/deploy.xml deploy"
-            }
-        }
-
-        stage('Test Deployment') {
-            steps {
-                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -f assets/IS/Packages/${params.PACKAGE_NAME}/test.xml test"
+                bat "${env.SAG_HOME}/common/lib/ant/bin/ant -DSAGHome=${env.SAG_HOME} -DSAG_CI_HOME=${env.SAG_CI_HOME} -DprojectName=${params.PACKAGE_NAME} -DpackagePath=${env.PACKAGE_PATH} test"
                 junit 'report/'
             }
         }
     }
 }
-
-

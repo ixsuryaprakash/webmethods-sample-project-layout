@@ -20,8 +20,12 @@
 
 pipeline {
    agent any 
-   pipeline {
-    agent any 
+    parameters {
+    string(name: 'PACKAGE_NAME', defaultValue: 'PackageA.zip', description: 'Select the package')
+    }
+    environment {
+        isPackages = "./assets/IS/Packages/${params.PACKAGE_NAME}"
+     }
     stages {
         stage('Build'){
             steps {

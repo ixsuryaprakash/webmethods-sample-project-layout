@@ -23,6 +23,10 @@ pipeline {
     environment {
         SAG_HOME = 'C:/SoftwareAG'
         SAG_CI_HOME = 'C:/SAG_CI_DEV'
+        isPackages = "./assets/IS/Packages/${params.PACKAGE_NAME}"
+    }
+    parameters {
+    string(name: 'PACKAGE_NAME', defaultValue: 'Fibonachi', description: 'Select the package')
     }
     stages {
         stage('Build'){

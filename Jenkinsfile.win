@@ -21,10 +21,7 @@
 
 pipeline{
     agent any
-    stages{
-        stage('Verifying Packages'){
-
-            environment{
+    environment{
                  SAG_HOME = 'C:/SoftwareAG'
                  SAG_CI_HOME = 'C:/SAG_CI_DEV'
                  packages_names_list = "${PACKAGE_NAME}"
@@ -32,6 +29,8 @@ pipeline{
               parameters {
                  string(name: 'PACKAGE_NAME', defaultValue: 'PackageA.zip', description: 'Select the package')
                }
+    stages{
+        stage('Verifying Packages'){
             steps{
                 script{
                     if(packages_names_list=="*"){

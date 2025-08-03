@@ -21,7 +21,7 @@
 pipeline {
    agent any 
     environment {
-        SAG_HOME = 'C:/SoftwareAG7'
+        SAG_HOME = 'C:/SoftwareAG'
         SAG_CI_HOME = 'C:/SAG_CI_DEV'
         isPackages = "./assets/IS/Packages/${params.PACKAGE_NAME}"
     }

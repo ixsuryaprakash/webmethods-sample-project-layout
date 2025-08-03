@@ -25,6 +25,8 @@ pipeline{
         stage('Verifying Packages'){
 
             environment{
+                 SAG_HOME = 'C:/SoftwareAG'
+                 SAG_CI_HOME = 'C:/SAG_CI_DEV'
                  packages_names_list = "${PACKAGE_NAMES}"
               }
             steps{

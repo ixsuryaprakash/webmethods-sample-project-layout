@@ -3,14 +3,14 @@ pipeline {
   parameters {
     string(name: 'PACKAGE_NAMES', defaultValue: 'PackageA.zip', description: 'Select the package')
   }
-  environment {
+  
+  stages {
+    stage('Verifying Packages') {
+    environment {
     SAG_HOME = 'C:/SoftwareAG7'
     SAG_CI_HOME = 'C:/SAG_CI_DEV'
     packages_names_list = "${PACKAGE_NAMES}"
-  }
-  stages {
-    stage('Verifying Packages') {
-
+   }
       steps {
         script {
           if (packages_names_list == "*") {

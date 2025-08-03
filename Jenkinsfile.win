@@ -27,8 +27,11 @@ pipeline{
             environment{
                  SAG_HOME = 'C:/SoftwareAG'
                  SAG_CI_HOME = 'C:/SAG_CI_DEV'
-                 packages_names_list = "${PACKAGE_NAMES}"
+                 packages_names_list = "${PACKAGE_NAME}"
               }
+              parameters {
+                 string(name: 'PACKAGE_NAME', defaultValue: 'PackageA.zip', description: 'Select the package')
+               }
             steps{
                 script{
                     if(packages_names_list=="*"){
